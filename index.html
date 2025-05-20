@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Profile & Banner Maker</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.18.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/body-pix"></script>
+
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+        background: #f5f5f3;
+        color: #222;
+        padding: 1rem;
+        transition: background 0.3s, color 0.3s;
+        max-width: 100vw;
+      }
+
+      body.dark {
+        background: #1e1e2f;
+        color: #e0e0e0;
+      }
+
+      .card {
+        background: #fff;
+        padding: 1rem;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        margin: 1rem auto;
+        width: 90%;
+        max-width: 800px;
+      }
+
+      body.dark .card {
+        background: #2c2c3e;
+      }
+
+      h2,
+      h3,
+      h4 {
+        text-align: center;
+        margin: 0.5rem 0;
+      }
+
+      input[type="file"] {
+        display: block;
+        margin: 1rem auto;
+        padding: 0.8rem;
+        background: #585279;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+      }
+
+      canvas {
+        display: block;
+        margin: 1rem auto;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        max-width: 100%;
+        height: auto;
+      }
+
+      button{
+        margin: 0.5rem auto 1rem;
+        background: #585279;
+        color: white;
+        border: none;
+        padding: 1rem 2rem;
+        border-radius: 8px;
+        cursor: pointer;
+      }
+
+      button.download-btn {
+        display: block;
+        margin: 0.5rem auto 1rem;
+        background: #585279;
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        cursor: pointer;
+      }
+
+      #darkToggle {
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        background-color: #585279;
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        z-index: 100;
+        cursor: pointer;
+      }
+
+      /* Set class for rows of cards */
+      .set {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 1rem;
+      }
+
+      .set .card {
+        flex: 1 1 90%;
+      }
+
+      /* For mobile layout adjustments */
+      @media (max-width: 600px) {
+        .set {
+          flex-direction: column;
+          gap: 0.5rem;
+        }
+
+        canvas {
+          width: 70% !important;
+          height: auto !important;
+        }
+
+        .card {
+          margin: 0.5rem auto;
+        }
+      }
+
+      .icon {
+        width: 5rem;
+      }
+
+      @media (max-width: 600px) {
+        body {
+          padding: 0.5rem;
+        }
+        .icon {
+          width: 4rem;
+        }
+        .darkb{
+            font-size: 12px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <button class="darkb" id="darkToggle">ON/OFF Dark Mode</button>
+    <center><img class="icon" src="icon.png" /></center>
+    <h2>🖼️ Profile & Social Banner Maker</h2>
+    <h4>Don't worry about cropping</h4>
+    <main class="set">
+      <div class="card">
+        <h3>Upload Profile Image</h3>
+        <input type="file" id="profileUpload" accept="image/*" />
+        <canvas id="profileCanvas" width="400" height="400"></canvas>
+        <button
+          class="download-btn"
+          onclick="downloadCanvas('profileCanvas', 'profile-pic.png')"
+        >
+          Download Profile Pic
+        </button>
+
+        <main class="set">
+          <div class="card">
+            <h3>Templates</h3>
+            <h3>👤 Profile: Light</h3>
+            <canvas
+              id="canvasProfileClassic1"
+              width="200"
+              height="200"
+            ></canvas>
+            <button
+              class="download-btn"
+              onclick="downloadCanvas('canvasProfileClassic1', 'profile-light.png')"
+            >
+              Download
+            </button>
+          </div>
+
+          <div class="card">
+            <h3>📢 Banner: Light</h3>
+            <canvas
+              id="canvasBannerLinkedIn1"
+              width="1584"
+              height="396"
+              href=""
+            ></canvas>
+            <button
+              class="download-btn"
+              onclick="downloadCanvas('canvasBannerLinkedIn1', 'banner-light.png')"
+            >
+              Download
+            </button>
+          </div>
+        </main>
+
+        <main class="set">
+          <div class="card">
+            <h3>Templates</h3>
+            <h3>👤 Profile: Dark</h3>
+            <canvas
+              id="canvasProfileClassic2"
+              width="200"
+              height="200"
+            ></canvas>
+            <button
+              class="download-btn"
+              onclick="downloadCanvas('canvasProfileClassic2', 'profile-dark.png')"
+            >
+              Download
+            </button>
+          </div>
+
+          <div class="card">
+            <h3>📢 Banner: Dark</h3>
+            <canvas
+              id="canvasBannerLinkedIn2"
+              width="1584"
+              height="396"
+              href=""
+            ></canvas>
+            <button
+              class="download-btn"
+              onclick="downloadCanvas('canvasBannerLinkedIn2', 'banner-dark.png')"
+            >
+              Download
+            </button>
+          </div>
+        </main>
+
+        <main class="set">
+          <div class="card">
+            <h3>Templates</h3>
+            <h3>👤 Profile: Purple</h3>
+            <canvas
+              id="canvasProfileClassic3"
+              width="200"
+              height="200"
+            ></canvas>
+            <button
+              class="download-btn"
+              onclick="downloadCanvas('canvasProfileClassic3', 'profile-purple.png')"
+            >
+              Download
+            </button>
+          </div>
+
+          <div class="card">
+            <h3>📢 Banner: Purple</h3>
+            <canvas
+              id="canvasBannerLinkedIn3"
+              width="1584"
+              height="396"
+              href=""
+            ></canvas>
+            <button
+              class="download-btn"
+              onclick="downloadCanvas('canvasBannerLinkedIn3', 'banner-purple.png')"
+            >
+              Download
+            </button>
+          </div>
+        </main>
+      </div>
+
+      <div class="card">
+        <h3>Upload Banner Image</h3>
+        <input type="file" id="bannerUpload" accept="image/*" />
+
+        <div id="banners">
+          <div>
+            <h4>LinkedIn Banner (1584×396)</h4>
+            <canvas id="linkedinCanvas" width="1584" height="396"></canvas>
+            <button
+              class="download-btn"
+              onclick="downloadCanvas('linkedinCanvas', 'linkedin-banner.png')"
+            >
+              Download
+            </button>
+          </div>
+
+          <div>
+            <h4>Twitter Banner (1500×500)</h4>
+            <canvas id="twitterCanvas" width="1500" height="500"></canvas>
+            <button
+              class="download-btn"
+              onclick="downloadCanvas('twitterCanvas', 'twitter-banner.png')"
+            >
+              Download
+            </button>
+          </div>
+
+          <div>
+            <h4>Facebook Banner (1200×628)</h4>
+            <canvas id="facebookCanvas" width="1200" height="628"></canvas>
+            <button
+              class="download-btn"
+              onclick="downloadCanvas('facebookCanvas', 'facebook-banner.png')"
+            >
+              Download
+            </button>
+          </div>
+
+          <div>
+            <h4>WhatsApp Banner (1125×633)</h4>
+            <canvas id="whatsappCanvas" width="1125" height="633"></canvas>
+            <button
+              class="download-btn"
+              onclick="downloadCanvas('whatsappCanvas', 'whatsapp-banner.png')"
+            >
+              Download
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      document.getElementById("darkToggle").onclick = () => {
+        document.body.classList.toggle("dark");
+      };
+
+      function downloadCanvas(canvasId, filename) {
+        const canvas = document.getElementById(canvasId);
+        canvas.toBlob((blob) => {
+          const link = document.createElement("a");
+          link.download = filename;
+          link.href = URL.createObjectURL(blob);
+          link.click();
+          URL.revokeObjectURL(link.href);
+        });
+      }
+
+      function drawCroppedImageToCanvas(img, canvas, targetW, targetH) {
+        const ctx = canvas.getContext("2d");
+        canvas.width = targetW;
+        canvas.height = targetH;
+
+        const imgRatio = img.width / img.height;
+        const canvasRatio = targetW / targetH;
+
+        let sx, sy, sWidth, sHeight;
+
+        if (imgRatio > canvasRatio) {
+          sHeight = img.height;
+          sWidth = sHeight * canvasRatio;
+          sx = (img.width - sWidth) / 2;
+          sy = 0;
+        } else {
+          sWidth = img.width;
+          sHeight = sWidth / canvasRatio;
+          sx = 0;
+          sy = (img.height - sHeight) / 2;
+        }
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(
+          img,
+          sx,
+          sy,
+          sWidth,
+          sHeight,
+          0,
+          0,
+          canvas.width,
+          canvas.height
+        );
+      }
+
+      function handleImageUpload(inputId, callback) {
+        const input = document.getElementById(inputId);
+        input.addEventListener("change", (e) => {
+          const file = e.target.files[0];
+          if (!file) return;
+
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            const img = new Image();
+            img.onload = () => callback(img);
+            img.onerror = () => alert("Failed to load image.");
+            img.src = event.target.result;
+          };
+          reader.readAsDataURL(file);
+        });
+      }
+
+      handleImageUpload("profileUpload", (img) => {
+        drawCroppedImageToCanvas(
+          img,
+          document.getElementById("profileCanvas"),
+          400,
+          400
+        );
+      });
+
+      handleImageUpload("bannerUpload", (img) => {
+        drawCroppedImageToCanvas(
+          img,
+          document.getElementById("linkedinCanvas"),
+          1584,
+          396
+        );
+        drawCroppedImageToCanvas(
+          img,
+          document.getElementById("twitterCanvas"),
+          1500,
+          500
+        );
+        drawCroppedImageToCanvas(
+          img,
+          document.getElementById("facebookCanvas"),
+          1200,
+          628
+        );
+        drawCroppedImageToCanvas(
+          img,
+          document.getElementById("whatsappCanvas"),
+          1125,
+          633
+        );
+      });
+    </script>
+
+    <script>
+      const preloadTemplates = [
+        { id: "canvasProfileClassic1", src: "./templates/profile-light.png" },
+        { id: "canvasBannerLinkedIn1", src: "./templates/banner-light.png" },
+        { id: "canvasProfileClassic2", src: "./templates/profile-dark.png" },
+        { id: "canvasBannerLinkedIn2", src: "./templates/banner-dark.png" },
+        { id: "canvasProfileClassic3", src: "./templates/profile-purple.png" },
+        { id: "canvasBannerLinkedIn3", src: "./templates/banner-purple.png" },
+        // Add more here
+      ];
+
+      function loadStaticTemplates() {
+        preloadTemplates.forEach((item) => {
+          const canvas = document.getElementById(item.id);
+          const ctx = canvas.getContext("2d");
+          const img = new Image();
+          img.onload = () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          };
+          img.src = item.src;
+        });
+      }
+
+
+
+
+      function acceptTerms() {
+        document.getElementById("termsGate").style.display = "none";
+      }
+
+      function declineTerms() {
+        alert("You must accept the terms to use this application.");
+        window.location.href = ""; // or close tab
+      }
+
+      window.onload = () => {
+        document.getElementById("termsGate").style.display = "flex";
+      };
+
+
+
+
+
+      function downloadCanvas(canvasId, filename) {
+        const canvas = document.getElementById(canvasId);
+        canvas.toBlob((blob) => {
+          const link = document.createElement("a");
+          link.download = filename;
+          link.href = URL.createObjectURL(blob);
+          link.click();
+          URL.revokeObjectURL(link.href);
+        });
+      }
+
+
+
+
+
+      // Call on page load
+      window.onload = loadStaticTemplates;
+
+      
+    </script>
+
+
+
+
+
+
+
+
+
+      <div
+      id="termsGate"
+      style="
+        position: fixed;
+        z-index: 9999;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.8);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      "
+    >
+      <div
+        style="
+          background: white;
+          padding: 30px;
+          border-radius: 10px;
+          width: 90%;
+          max-width: 500px;
+          text-align: center;
+        "
+      >
+        <h2>Accept Terms & Conditions</h2>
+        <p>
+          By continuing, you agree to our
+          <a
+            href="#"
+            onclick="document.getElementById('popupModal').style.display='block'"
+            >Terms & Conditions</a
+          >
+          and Privacy Policy.
+        </p>
+        <button onclick="acceptTerms()">Continue</button>
+        <button
+          onclick="declineTerms()"
+          style="margin-left: 10px; background: gray"
+        >
+          Decline
+        </button>
+      </div>
+    </div>
+
+    <!-- Footer trigger button -->
+    <div
+      style="
+        position: fixed;
+        bottom: 10px;
+        right: 10px;
+        font-size: 12px;
+        z-index: 100;
+      "
+    >
+      <button
+        onclick="document.getElementById('popupModal').style.display='block'"
+      >
+        Terms & Privacy
+      </button>
+    </div>
+
+    <!-- Modal Popup -->
+    <div
+      id="popupModal"
+      style="
+        display: none;
+        position: fixed;
+        z-index: 9999;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.6);
+      "
+    >
+      <div
+        style="
+          background-color: #fff;
+          margin: 10% auto;
+          padding: 20px;
+          border-radius: 10px;
+          width: 90%;
+          max-width: 600px;
+        "
+      >
+        <span
+          style="float: right; cursor: pointer; font-size: 18px"
+          onclick="document.getElementById('popupModal').style.display='none'"
+          >&times;</span
+        >
+        <h3>Terms & Conditions</h3>
+        <p><p></p>
+          Terms & Conditions Effective Date: 18 May 2025</p>
+                    <h2>Terms and Conditions</h2>
+          <p>By using the Budget Finance Calculator (BFC), you agree to be bound by these Terms and Conditions. If you do not agree, please refrain from using the service.</p>
+
+          <h3>1. Use of the Service</h3>
+          <p>BFC is provided “as is” for general budgeting assistance and informational purposes only. It is not a substitute for financial advice. We make no guarantees as to the accuracy, reliability, or completeness of results or outputs from the calculator.</p>
+
+          <h3>2. Third-Party Advertising</h3>
+          <p>BFC integrates advertisements via the Monetag network, operated by Propeller Ads Ltd and its affiliated entities. Monetag may display ads on the site to support monetization. BFC does not control the content of third-party advertisements and disclaims any responsibility for their content, accuracy, or practices.</p>
+
+          <h3>3. Prohibited Use</h3>
+          <p>You agree not to use BFC for any unlawful, harmful, or deceptive purposes. Any misuse of the service, including attempts to bypass ad systems or manipulate results, may result in termination of access and legal action.</p>
+
+          <h3>4. Limitation of Liability</h3>
+          <p>We are not liable for any loss, damage, or expense arising from the use or inability to use BFC, including but not limited to indirect or consequential damages. Use of the service is entirely at your own risk.</p>
+
+          <h3>5. Changes and Termination</h3>
+          <p>We reserve the right to update these Terms at any time. Continued use of the site after changes are posted constitutes acceptance. We may suspend or terminate access to BFC at our discretion.</p>
+
+          <h3>6. Governing Law</h3>
+          <p>These Terms shall be governed by the laws of the Republic of Cyprus. Any disputes arising shall be subject to the exclusive jurisdiction of its courts.</p>
+
+        <h3>Privacy Policy</h3>
+        <p>
+          </p>Privacy Policy Effective Date: 18 May 2025</p>
+                      <h2>Privacy Policy</h2>
+            <p>This Privacy Policy explains how BFC collects, uses, and protects information from users.</p>
+
+            <h3>1. Data Collection</h3>
+            <p>BFC does not collect personal data such as names, emails, or contact details. However, we may use browser cookies and third-party analytics tools (e.g., Monetag and its partners) to serve relevant ads and measure website traffic.</p>
+
+            <h3>2. Use of Cookies</h3>
+            <p>We use cookies to enhance your user experience and for ad personalization. Cookies may also be used by third-party advertisers like Monetag. You may choose to disable cookies in your browser settings, though this may impact the website’s functionality.</p>
+
+            <h3>3. Third-Party Ads</h3>
+            <p>We use Monetag (Propeller Ads Ltd) as our advertising partner. They may collect anonymous browsing information to serve tailored ads. Please refer to <a href="https://monetag.com/privacy" target="_blank">Monetag’s privacy policy</a> and  <a href="https://monetag.com/terms" target="_blank">Monetag’s Terms</a> for more information.</p>
+
+            <h3>4. EU Users and Consent</h3>
+            <p>In accordance with GDPR, users from the European Union are notified of cookie usage and must provide consent before cookies are stored on their device.</p>
+
+            <h3>5. Security</h3>
+            <p>We take standard security measures to protect the data processed on this site. However, no internet-based system is 100% secure, and you use the site at your own risk.</p>
+
+            <h3>6. Updates</h3>
+            <p>This Privacy Policy may be updated periodically. Continued use of BFC indicates your agreement with the current policy.</p>
+
+        </p>
+        <p style="text-align: right; font-style: italic">
+          Created by Vishwash C V / Cospeld
+        </p>
+      </div>
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  </body>
+</html>
